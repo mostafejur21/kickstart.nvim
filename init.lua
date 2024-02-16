@@ -94,6 +94,10 @@ require('lazy').setup({
       'folke/neodev.nvim',
     },
   },
+  {
+    "akinsho/flutter-tools.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+  },
 
   {
     -- Autocompletion
@@ -368,6 +372,8 @@ require('telescope').setup {
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
+
+pcall(require('telescope').load_extension, 'flutter')
 
 -- Telescope live_grep in git root
 -- Function to find the git root directory based on the current buffer's path
@@ -677,6 +683,16 @@ cmp.setup {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
     { name = 'path' },
+  },
+}
+require('flutter-tools').setup{
+  fvm = os.getenv("HOME").."/fvm/versions/3.7.1/bin",
+    lsp = {
+    on_attach = on_attach,
+    capabilities = capabilities,
+  },
+  widget_guides = {
+    enable = true,
   },
 }
 
