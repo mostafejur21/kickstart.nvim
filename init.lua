@@ -88,7 +88,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -126,9 +126,46 @@ require('lazy').setup({
       'rafamadriz/friendly-snippets',
     },
   },
+  --copilot
+  {
+    "github/copilot.vim"
 
+  },
+  --autopair
+  {
+    "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    config = function()
+      local harpoon = require("harpoon")
+
+      -- REQUIRED
+      harpoon:setup()
+      -- REQUIRED
+
+      vim.keymap.set("n", "<leader>a", function()
+        harpoon:list():append()
+      end)
+      vim.keymap.set("n", "<C-e>", function()
+        harpoon.ui:toggle_quick_menu(harpoon:list())
+      end)
+
+      vim.keymap.set("n", "<C-h>", function()
+        harpoon:list():select(1)
+      end)
+      vim.keymap.set("n", "<C-j>", function()
+        harpoon:list():select(2)
+      end)
+      vim.keymap.set("n", "<C-k>", function()
+        harpoon:list():select(3)
+      end)
+      vim.keymap.set("n", "<C-l>", function()
+        harpoon:list():select(4)
+      end)
+    end,
+  },
+  -- Harpoon
+  { 'folke/which-key.nvim',  opts = {} },
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -203,8 +240,27 @@ require('lazy').setup({
       end,
     },
   },
-
   {
+    "rose-pine/neovim",
+    name = "rose-pine",
+    config = function()
+      require('rose-pine').setup({
+        disable_background = true,
+      })
+
+      vim.cmd("colorscheme rose-pine")
+
+      function ColorMyPencils(color)
+        color = color or "rose-pine"
+        vim.cmd.colorscheme(color)
+
+        vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+        vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+      end
+    end
+  },
+
+  --[[ {
     -- Theme inspired by Atom
     'navarasu/onedark.nvim',
     priority = 1000,
@@ -216,8 +272,26 @@ require('lazy').setup({
       }
       require('onedark').load()
     end,
-  },
+  },--]]
 
+  {
+    "windwp/nvim-autopairs",
+    config = function()
+      require('nvim-autopairs').setup({
+        enable_check_bracket_line = true,
+        fast_wrap = {
+          map = '<M-e>',
+          chars = { '{', '[', '(', '"', "'" },
+          pattern = string.gsub([[ [%'%"%)%>%]%)%}%,] ]], '%s+', ''),
+          offset = 0, -- Offset from pattern match
+          end_key = '$',
+          keys = 'qwertyuiopzxcvbnmasdfghjkl',
+          check_comma = true,
+          hightlight = 'Search'
+        },
+      })
+    end
+  },
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
@@ -337,9 +411,18 @@ vim.o.termguicolors = true
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
 -- Remap for dealing with word wrap
-vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+vim.keymap.set("n", "J", "mzJ`z")
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+vim.keymap.set("n", "<C-u>", "<C-u>zz")
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
+vim.keymap.set("n", "n", "nzzzv")
+vim.keymap.set("n", "N", "Nzzzv")
+vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
+vim.keymap.set("n", "<leader>Y", [["+Y]])
+vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
+vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
@@ -431,7 +514,7 @@ end
 vim.keymap.set('n', '<leader>s/', telescope_live_grep_open_files, { desc = '[S]earch [/] in Open Files' })
 vim.keymap.set('n', '<leader>ss', require('telescope.builtin').builtin, { desc = '[S]earch [S]elect Telescope' })
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>pf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
@@ -532,7 +615,7 @@ local on_attach = function(_, bufnr)
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   nmap('<leader>ca', function()
-    vim.lsp.buf.code_action { context = { only = { 'quickfix', 'refactor', 'source' } } }
+    vim.lsp.buf.code_action()
   end, '[C]ode [A]ction')
 
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
@@ -582,7 +665,6 @@ require('which-key').register({
 -- before setting up the servers.
 require('mason').setup()
 require('mason-lspconfig').setup()
-
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 --
@@ -608,7 +690,6 @@ local servers = {
     },
   },
 }
-
 -- Setup neovim lua configuration
 require('neodev').setup()
 
@@ -633,7 +714,33 @@ mason_lspconfig.setup_handlers {
     }
   end,
 }
-
+--[[
+lsp_config["dartls"].setup({
+  capabilities = capabilities,
+  cmd = {
+    "dart",
+    "language-server",
+    "--protocol=lsp",
+    -- "--port=8123",
+    -- "--instrumentation-log-file=/Users/robertbrunhage/Desktop/lsp-log.txt",
+  },
+  filetypes = { "dart" },
+  init_options = {
+    onlyAnalyzeProjectsWithOpenFiles = false,
+    suggestFromUnimportedLibraries = true,
+    closingLabels = true,
+    outline = false,
+    flutterOutline = false,
+  },
+  settings = {
+    dart = {
+      updateImportsOnRename = true,
+      completeFunctionCalls = true,
+      showTodos = true,
+    },
+  },
+})
+--]]
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
 local cmp = require 'cmp'
@@ -685,9 +792,10 @@ cmp.setup {
     { name = 'path' },
   },
 }
-require('flutter-tools').setup{
-  fvm = os.getenv("HOME").."/fvm/versions/3.7.1/bin",
-    lsp = {
+require('flutter-tools').setup {
+  fvm = true,
+  flutter_path = os.getenv("USERPROFILE") .. "/fvm/default/bin/flutter",
+  lsp = {
     on_attach = on_attach,
     capabilities = capabilities,
   },
@@ -696,5 +804,5 @@ require('flutter-tools').setup{
   },
 }
 
--- The line beneath this is called `modeline`. See `:help modeline`
+-- The line oeneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
